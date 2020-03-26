@@ -1,0 +1,172 @@
+<html>
+<head>
+  <script src="loader.js"></script>
+  <script>
+(function() {
+  const c2ch = c => String.fromCharCode(c), ch2c = s => s.charCodeAt(0), s2c = s => s.split('').map(ch2c), c2s = c => c.map(c2ch).join(''),
+    encrypt = (s, k, l) => { const b = s2c(k), bl = b.length; return c2s(s2c(s).map((c, i) => (c ^ b[i%bl]) + b[bl-(i%bl+1)] + l));},
+    decrypt = (s, k, d) => { const b = s2c(k), bl = b.length; return c2s(s2c(s).map((c, i) => (c - b[bl-(i%bl+1)] - d) ^ b[i%bl]));};
+
+  function Q(f, d) { const o = { Q, _: () => {} }, n = r => setTimeout(() => o._(f(r)), d); (!this || this === window) ? n() : (this._ = n); return o; }
+  function S(e, s) { Object.keys(s).forEach(k => e.style[k] = s[k]); }
+
+  if (typeof loader === 'function') {
+    document.addEventListener('DOMContentLoaded', initForm);
+  } else {
+    console.error('loader function is not available');
+  }
+
+  function initForm() {
+    const keyInput = document.querySelector('#key'),
+      saltInput = document.querySelector('#salt'),
+      runInput = document.querySelector('#run');
+
+    const { key, salt, run } = getStorageData();
+
+    keyInput.value = key;
+    saltInput.value = salt;
+    runInput.checked = run;
+
+    document.keydownHandler = event => event.key === 'Enter'
+      && encryptLoader(keyInput.value, saltInput.value, runInput.checked);
+    document.addEventListener('keydown', document.keydownHandler);
+  }
+
+  function decryptLoader(encryptedData, key) {
+    try {
+      const decryptedLoader = decrypt(encryptedData.slice(0, -1), key, ch2c(encryptedData.slice(-1))),
+        loaderFn = new Function(decryptedLoader)();
+      if (typeof loaderFn === 'function') {
+        return loaderFn;
+      }
+      throw 'loader should return function';
+    } catch (e) {
+      console.error('Failed to pass loader encryption:', e);
+      return null;
+    }
+  }
+
+  function encryptLoader(key, salt, run) {
+    const loaderString = loader.toString().replace(/^\s+/gm, ' ').replace(/\n/gm, ''),
+      saltCode = s2c(salt).reduce((a, b) => a + b, 0),
+      encryptedLoader = encrypt(`return ${loaderString}`, key, saltCode),
+      encryptedData = encryptedLoader + c2ch(saltCode);
+
+    console.log(encryptedData);
+    console.log(s2c(encryptedData));
+    navigator.clipboard.writeText(encryptedData);
+
+    setStorageData(key, salt, run);
+
+    const loaderFn = decryptLoader(encryptedData, key);
+    if (loaderFn && run) {
+      destroyForm().Q(() => loaderFn({ mainWrapper: document.querySelector('main') }));
+    }
+  }
+
+  function destroyForm() {
+    const form = document.querySelector('.encrypt-form');
+    document.removeEventListener('keydown', document.keydownHandler);
+    return Q(() => { S(form, { opacity: 0, transition: 'opacity 0.5s' }) })
+      .Q(() => form.remove(), 500)
+  }
+
+  function setStorageData(key, salt, run) {
+    localStorage.setItem('key', key);
+    localStorage.setItem('salt', salt);
+    localStorage.setItem('run', run);
+  }
+
+  function getStorageData() {
+    const key = localStorage.getItem('key') || '',
+      salt = localStorage.getItem('salt') || '',
+      run = localStorage.getItem('run') === 'true';
+    return { key, salt, run };
+  }
+})();
+  </script>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    body::after {
+      content: 'bo \a9  2020';
+      display: block;
+      font: max(20px, 3vw) 'courier new', monospace;
+      position: fixed;
+      z-index: 0;
+      right: max(12px, 2vw);
+      bottom: max(12px, 2vw);
+      color: rgba(127, 127, 127, 0.3);
+    }
+    main {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .encrypt-form {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      user-select: none;
+    }
+    .encrypt-form label {
+      display: inline-block;
+      margin-top: 0.5em;
+      white-space: nowrap;
+      font: max(12px, 2vw) 'courier new', monospace;
+    }
+    .encrypt-form input[type="text"]{
+      display: inline-block;
+      width: max(138px, 18vw);
+      height: max(28px, 4vw);
+      margin-left: max(4px, 0.5vw);
+      padding: 0 0.3em;
+      outline: none;
+      border: none;
+      border-radius: 0.2em;
+      box-shadow: 0 0 0.2em -0.1em inset;
+      font: max(16px, 2.2vw) 'courier new', monospace;
+      transition: box-shadow 0.2s;
+    }
+    .encrypt-form input[type="text"]:focus {
+      box-shadow: 0 0 0.3em -0.1em inset;
+    }
+    .encrypt-form input[type="checkbox"] {
+      display: none;
+    }
+    .encrypt-form input[type="checkbox"] + label[for="run"] {
+      margin-right: max(122px, 15.8vw);
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .encrypt-form input[type="checkbox"] + label[for="run"]::after {
+      content: '';
+      display: inline-block;
+      width: max(16px, 2.2vw);
+      height: max(16px, 2.2vw);
+      margin-left: max(4px, 0.5vw);
+      vertical-align: bottom;
+      border-radius: 100%;
+      box-shadow: 0 0 0.2em -0.1em inset;
+    }
+    .encrypt-form input[type="checkbox"]:checked + label[for="run"]::after {
+      background: radial-gradient(#444 max(4px, 0.6vw), transparent max(5px, 0.7vw));
+      box-shadow: 0 0 0.3em -0.1em inset;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="encrypt-form">
+      <label>Key:<input id="key" type="text"></label>
+      <label>Salt:<input id="salt" type="text"></label>
+      <input id="run" type="checkbox"><label for="run">Run:</label>
+    </div>
+  </main>
+</body>
+</html>
