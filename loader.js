@@ -17,7 +17,7 @@ const loader = function(data) {
     .message {
       font: max(28px, 4.5vw) 'courier new', monospace;
       color: transparent;
-      text-shadow: 0 0 max(28px, 4.5vw) black;
+      text-shadow: 0 0 1em black;
       transition: text-shadow 1s linear;
       text-align: center;
       will-change: text-shadow;
@@ -32,7 +32,7 @@ const loader = function(data) {
       cursor: pointer;
       font: bold max(60px, 8vw) sans-serif;
       color: transparent;
-      text-shadow: 0 0 max(10px, 2vw) white;
+      text-shadow: 0 0 0.25em white;
       transition: text-shadow 0.1s linear;
       will-change: text-shadow;
     }  
@@ -67,7 +67,7 @@ const loader = function(data) {
       width: 100%;
       height: 100%;
       pointer-events: none;
-      box-shadow: 0 0 min(20vh, 20vw) min(1vh, 1vw) inset, 0 0 min(0.5vh, 0.5vw) min(0.1vh, 0.1vw) inset;
+      box-shadow: 0 0 0.7em 0.04em inset, 0 0 0.03em 0.005em inset;
     }
 
     .cube a {
@@ -140,30 +140,43 @@ const loader = function(data) {
       cube = E('div', { className: 'cube' }, documentFragment);
 
     const cubeData = [],
+      dotPositions = {
+        1: [[0, 0]],
+        2: [[-1, 1], [1, -1]],
+        3: [[-1, -1], [0, 0], [1, 1]],
+        4: [[-1, -1], [1, -1], [-1, 1], [1, 1]],
+        5: [[-1, -1], [1, -1], [0, 0], [-1, 1], [1, 1]],
+        6: [[-1, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [1, 1]]
+      },
       sideParams = {
-        left: { background: 'rgba(200, 0, 0, 0.7)', transform: 'translateX(-50%) rotateY(-90deg)' },
-        right: { background: 'rgba(200, 200, 0, 0.7)', transform: 'translateX(50%) rotateY(90deg)' },
-        back: { background: 'rgba(0, 0, 200, 0.7)', transform: 'rotateY(90deg) translateX(50%) rotateY(90deg)' },
-        front: { background: 'rgba(0, 200, 0, 0.7)', transform: 'rotateY(90deg) translateX(-50%) rotateY(-90deg)' },
-        top: { background: 'rgba(0, 200, 200, 0.7)', transform: 'translateY(-50%) rotateX(90deg)' },
-        bottom: { background: 'rgba(200, 0, 200, 0.7)', transform: 'translateY(50%) rotateX(-90deg)' }
+        left: { background: 'rgba(200, 0, 0, 0.7)', transform: 'translateX(-50%) rotateY(-90deg)', dots: 1 },
+        right: { background: 'rgba(200, 200, 0, 0.7)', transform: 'translateX(50%) rotateY(90deg)', dots: 6 },
+        back: { background: 'rgba(0, 0, 200, 0.7)', transform: 'rotateY(90deg) translateX(50%) rotateY(90deg)', dots: 5 },
+        front: { background: 'rgba(0, 200, 0, 0.7)', transform: 'rotateY(90deg) translateX(-50%) rotateY(-90deg)', dots: 2 },
+        top: { background: 'rgba(0, 200, 200, 0.7)', transform: 'translateY(-50%) rotateX(90deg)', dots: 3 },
+        bottom: { background: 'rgba(200, 0, 200, 0.7)', transform: 'translateY(50%) rotateX(-90deg)', dots: 4 }
       };
 
+    const dots = (color, dots) => dotPositions[dots].map(pair => {
+      const position = pair.map(sign => `${sign * 0.35}em`).join(' ');
+      return `${position} 0.15em ${color}, ${position} 0 rgba(0, 0, 0, 0.5)`;
+    }).join(', ');
+
     Object.keys(sideParams).forEach((key, index) => {
-      const style = sideParams[key],
-        side = E('div', { className: `side text` }, cube),
-        text = E('a', { textContent: index + 1 }, side),
+      const params = sideParams[key],
+        side = E('div', { className: `side` }, cube),
+        text = E('a', { textContent: '\u2022' }, side),
         video = E('video', {}, side);
-      S(side, { background: style.background, opacity: 0, transform: 'scale(0.1)' });
-      S(text, { textShadow: `min(0.5vh, 0.5vw) min(0.5vh, 0.5vw) min(3vh, 3vw) ${style.background}, 0 0 0 rgba(0, 0, 0, 0.5)` });
+
+      S(side, { background: params.background, opacity: 0, transform: 'scale(0.1)' });
+      S(text, { textShadow: dots(params.background, params.dots)});
       S(video, { opacity: 0 });
-      cubeData.push({ side, text, video, style });
+      cubeData.push({ side, text, video, params });
     });
 
     data.mainWrapper.append(documentFragment);
-
     cubeData.reduce((q, data) =>
-      q.Q(() => S(data.side, { transform: data.style.transform, opacity: 1 }), 280), Q(() => {}));
+      q.Q(() => S(data.side, { transform: data.params.transform, opacity: 1 }), 280), Q(() => {}));
 
     return cubeData;
   }
@@ -189,7 +202,7 @@ const loader = function(data) {
   function initButton(side, action) {
     const button = E('button', { className: 'button', textContent: '\u25ef' }, data.mainWrapper);
 
-    S(button, { [side]: 'max(20px, 2vw)', top: 'max(20px, 2vw)', textShadow: '0 0 max(10px, 2vw) black', transitionDuration: '0.5s' });
+    S(button, { [side]: '0.5em', top: '0.3em', textShadow: '0 0 0.25em black', transitionDuration: '0.5s' });
     Q(() => S(button, { textShadow: '0 0 0 white' }), 100)
       .Q(() => S(button, { transitionDuration: null }), 500)
       .Q(() => {

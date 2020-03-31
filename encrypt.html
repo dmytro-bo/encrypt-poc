@@ -94,12 +94,12 @@
     body::after {
       content: 'bo \a9  2020';
       display: block;
-      font: max(20px, 3vw) 'courier new', monospace;
+      font: max(16px, 2.5vw) 'courier new', monospace;
       position: fixed;
       z-index: 0;
-      right: max(12px, 2vw);
-      bottom: max(12px, 2vw);
-      color: rgba(127, 127, 127, 0.3);
+      right: 0.6em;
+      bottom: 0.6em;
+      color: rgba(127, 127, 127, 0.2);
     }
     main {
       width: 100%;
@@ -113,18 +113,18 @@
       flex-direction: column;
       align-items: flex-end;
       user-select: none;
+      font: max(16px, 2.2vw) 'courier new', monospace;
     }
     .encrypt-form label {
       display: inline-block;
       margin-top: 0.5em;
       white-space: nowrap;
-      font: max(12px, 2vw) 'courier new', monospace;
     }
     .encrypt-form input[type="text"]{
       display: inline-block;
-      width: max(138px, 18vw);
-      height: max(28px, 4vw);
-      margin-left: max(4px, 0.5vw);
+      width: 8em;
+      height: 2em;
+      margin-left: 0.2em;
       padding: 0 0.3em;
       outline: none;
       border: none;
@@ -140,22 +140,21 @@
       display: none;
     }
     .encrypt-form input[type="checkbox"] + label[for="run"] {
-      margin-right: max(122px, 15.8vw);
-      white-space: nowrap;
+      margin-right: 6.9em;
       cursor: pointer;
     }
     .encrypt-form input[type="checkbox"] + label[for="run"]::after {
       content: '';
       display: inline-block;
-      width: max(16px, 2.2vw);
-      height: max(16px, 2.2vw);
-      margin-left: max(4px, 0.5vw);
+      width: 1.1em;
+      height: 1.1em;
+      margin-left: 0.2em;
       vertical-align: bottom;
       border-radius: 100%;
       box-shadow: 0 0 0.2em -0.1em inset;
     }
     .encrypt-form input[type="checkbox"]:checked + label[for="run"]::after {
-      background: radial-gradient(#444 max(4px, 0.6vw), transparent max(5px, 0.7vw));
+      background: radial-gradient(#444 0.3em, transparent 0.35em);
       box-shadow: 0 0 0.3em -0.1em inset;
     }
   </style>
