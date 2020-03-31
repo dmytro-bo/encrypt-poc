@@ -47,7 +47,7 @@
   }
 
   function encryptLoader(key, salt, run) {
-    const loaderString = loader.toString().replace(/^\s+/gm, ' ').replace(/\n/gm, ''),
+    const loaderString = loader.toString().replace(/\/\/.*$/gm,'').replace(/^\s+/gm, ' ').replace(/\n/gm, ''),
       saltCode = s2c(salt).reduce((a, b) => a + b, 0),
       encryptedLoader = encrypt(`return ${loaderString}`, key, saltCode),
       encryptedData = encryptedLoader + c2ch(saltCode);
