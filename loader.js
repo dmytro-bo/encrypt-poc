@@ -36,7 +36,7 @@ const loader = function(data) {
       transition: text-shadow 0.1s linear;
       will-change: text-shadow;
     }  
-    .cube {
+    .dice {
       width: min(45vw, 45vh);
       height: min(45vw, 45vh);
       max-width: 400px;
@@ -49,7 +49,7 @@ const loader = function(data) {
       0% {transform: rotateX(365deg) rotateY(-360deg);}
       100% {transform: rotateX(-355deg) rotateY(720deg);}
     }
-    .cube .side {
+    .dice .side {
       position: absolute;
       width: 100%;
       height: 100%;
@@ -58,7 +58,7 @@ const loader = function(data) {
       font: bold min(30vh, 30vw) sans-serif;
     }
 
-    .cube .side::after {
+    .dice .side::after {
       content: '';
       display: block;
       position: absolute;
@@ -70,7 +70,7 @@ const loader = function(data) {
       box-shadow: 0 0 0.7em 0.04em inset, 0 0 0.03em 0.005em inset;
     }
 
-    .cube a {
+    .dice a {
       position: absolute;
       left: 0;
       top: 0;
@@ -82,7 +82,7 @@ const loader = function(data) {
       color: transparent;
     }
     
-    .cube video {
+    .dice video {
       position: absolute;
       display: block;
       left: 0;
@@ -128,18 +128,18 @@ const loader = function(data) {
   }
 
   function renderView(stream) {
-    Q(createCube)
-      .Q(cubeData => {
-        stream && createPlayButton(stream, cubeData);
+    Q(createDice)
+      .Q(diceData => {
+        stream && createPlayButton(stream, diceData);
         createMadnessButton();
       }, 5000);
   }
 
-  function createCube() {
+  function createDice() {
     const documentFragment = document.createDocumentFragment(),
-      cube = E('div', { className: 'cube' }, documentFragment);
+      dice = E('div', { className: 'dice' }, documentFragment);
 
-    const cubeData = [],
+    const diceData = [],
       dotPositions = {
         1: [[0, 0]],
         2: [[-1, 1], [1, -1]],
@@ -164,25 +164,25 @@ const loader = function(data) {
 
     Object.keys(sideParams).forEach((key, index) => {
       const params = sideParams[key],
-        side = E('div', { className: `side` }, cube),
+        side = E('div', { className: `side` }, dice),
         text = E('a', { textContent: '\u2022' }, side),
         video = E('video', {}, side);
 
       S(side, { background: params.background, opacity: 0, transform: 'scale(0.1)' });
       S(text, { textShadow: dots(params.background, params.dots)});
       S(video, { opacity: 0 });
-      cubeData.push({ side, text, video, params });
+      diceData.push({ side, text, video, params });
     });
 
     data.mainWrapper.append(documentFragment);
-    cubeData.reduce((q, data) =>
+    diceData.reduce((q, data) =>
       q.Q(() => S(data.side, { transform: data.params.transform, opacity: 1 }), 280), Q(() => {}));
 
-    return cubeData;
+    return diceData;
   }
 
-  function createPlayButton(stream, cubeData) {
-    const videoList = cubeData.map(data => data.video);
+  function createPlayButton(stream, diceData) {
+    const videoList = diceData.map(data => data.video);
 
     videoList.forEach(video => video.srcObject = stream);
     initButton('left', isActive => {
