@@ -97,7 +97,7 @@ const loader = function(data) {
   init();
 
   function init() {
-    Q(() => S(data.mainWrapper, { transition: 'background-color 1s ', backgroundColor: 'black' }))
+    Q(() => S(data.mainWrapper, { transition: 'background-color 1s', backgroundColor: 'black' }))
       .Q(() => checkPermissions(), 700)
   }
 
